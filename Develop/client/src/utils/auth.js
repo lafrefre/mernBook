@@ -1,11 +1,9 @@
-// use this to decode a token and get the user's information out of it
 const { AuthenticationError } = require('apollo-server-express');
 const { User } = require('../models');
 const { signToken } = require('./auth');
+const decode = require('jwt-decode');
 
-import decode from 'jwt-decode';
-
-const authMiddleware = (req) => {
+const authMiddleware = async (req) => {
   let token = req.body.token || req.query.token || req.headers.authorization;
   
   if (req.headers.authorization) {
@@ -26,29 +24,18 @@ const authMiddleware = (req) => {
 
   return req;
 }
- 
-
-
-// create a new class to instantiate for a user
-
-
-
-
 
 class AuthService {
   // get user data
-
   getProfile() {
     return decode(this.getToken());
-
   }
-
 
   // check if user's logged in
   loggedIn() {
     // Checks if there is a saved token and it's still valid
     const token = this.getToken();
-    return !!token && !this.isTokenExpired(token); // handwaiving here
+    return !!token && !this.isTokenExpired(token);
   }
 
   // check if token is expired
@@ -65,7 +52,6 @@ class AuthService {
 
   getToken() {
     // Retrieves the user token from localStorage
-
     return localStorage.getItem('id_token');
   }
 
@@ -83,6 +69,7 @@ class AuthService {
   }
 }
 
-export default new AuthService();
-
-module.exports = authMiddleware;
+module.exports = {
+  authMiddleware,
+  AuthService: new AuthService()
+};
